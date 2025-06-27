@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartPlay - Juegos Educativos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #6a0dad, #0f52ba, #b22222);
+      background-size: 400% 400%;
+      animation: fondoAnimado 15s ease infinite;
+      color: white;
+      line-height: 1.4;
+    }
+    @keyframes fondoAnimado {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header {
+      width: 100%;
+      background: rgba(10,10,40,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      animation: headerBgPulse 8s ease-in-out infinite;
+    }
+    @keyframes headerBgPulse {
+      0% { background: rgba(10,10,40,0.9); }
+      50% { background: rgba(20,20,60,0.95); }
+      100% { background: rgba(10,10,40,0.9); }
+    }
+    header .clock {
+      display: flex;
+      align-items: center;
+      color: #fff;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 4px;
+      animation: clockPulse 2s infinite ease-in-out;
+    }
+    @keyframes clockPulse {
+      0% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+      50% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+      100% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+    }
+    header .logo-greeting {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: greetingFloat 4s ease-in-out infinite;
+    }
+    header .logo-greeting img {
+      height: 48px;
+      width: auto;
+      border-radius: 6px;
+      box-shadow: 0 0 8px #00ffc3;
+    }
+    @keyframes greetingFloat {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-4px) scale(1.02); }
+      100% { transform: translateY(0); }
+    }
+    header .greeting {
+      color: #ffe600;
+      font-weight: bold;
+      font-size: 1.1rem;
+      animation: greetingColor 5s infinite alternate;
+    }
+    @keyframes greetingColor {
+      0% { color: #ffe600; }
+      50% { color: #ffdf33; }
+      100% { color: #ffe600; }
+    }
+    header .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    header .header-buttons button,
+    header .header-center button {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s, transform 0.2s;
+    }
+    header .header-buttons button:hover,
+    header .header-center button:hover {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.1);
+    }
+    header .header-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    main h1 {
+      color: white;
+      font-size: 2.2rem;
+      margin-top: 10px;
+      text-align: center;
+      animation: titleFadeIn 1s ease-in-out;
+    }
+    @keyframes titleFadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .logo-central {
+      margin: 20px 0;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 0 15px rgba(0,255,180,0.3);
+      background: rgba(0,0,0,0.2);
+      animation: pulseCentral 4s ease-in-out infinite;
+    }
+    @keyframes pulseCentral {
+      0% { box-shadow: 0 0 15px rgba(0,255,180,0.3); }
+      50% { box-shadow: 0 0 25px rgba(0,255,180,0.5); }
+      100% { box-shadow: 0 0 15px rgba(0,255,180,0.3); }
+    }
+    .logo-central img {
+      max-width: 220px;
+      width: 100%;
+      height: auto;
+    }
+    #welcomeMsg {
+      color: #fff;
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 10px;
+      animation: fadeInText 1s ease-in-out;
+    }
+    @keyframes fadeInText {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    .grid-container.hidden {
+      display: none;
+    }
+    .game-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 calc(23% - 20px);
+      max-width: calc(23% - 20px);
+      aspect-ratio: 1 / 1;
+      position: relative;
+    }
+    .game-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+    .game-card img {
+      width: 100%;
+      height: 60%;
+      object-fit: cover;
+      animation: imgZoom 4s ease-in-out infinite alternate;
+    }
+    @keyframes imgZoom {
+      from { transform: scale(1); }
+      to { transform: scale(1.03); }
+    }
+    .game-info {
+      flex: 1;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+    .game-info h3 {
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+      animation: textPulse 2s infinite;
+    }
+    @keyframes textPulse {
+      0% { color: #fff; }
+      50% { color: #ffe600; }
+      100% { color: #fff; }
+    }
+    .game-info p {
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    footer {
+      width: 100%;
+      background: rgba(10,10,40,0.95);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      color: #ccc;
+      margin-top: 40px;
+      animation: footerBgPulse 8s ease-in-out infinite;
+    }
+    @keyframes footerBgPulse {
+      0% { background: rgba(10,10,40,0.95); }
+      50% { background: rgba(15,15,50,0.95); }
+      100% { background: rgba(10,10,40,0.95); }
+    }
+    footer .nombres {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 0.95rem;
+      flex-wrap: wrap;
+    }
+    footer .nombres a {
+      display: flex;
+      align-items: center;
+      color: #fff;
+      text-decoration: none;
+      gap: 6px;
+      transition: transform 0.2s;
+    }
+    footer .nombres a:hover {
+      transform: scale(1.1);
+    }
+    footer .nombres a img {
+      width: 20px;
+      height: 20px;
+      animation: whatsappFloat 3s ease-in-out infinite;
+    }
+    @keyframes whatsappFloat {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+      100% { transform: translateY(0); }
+    }
+    footer .social {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    footer .social a img {
+      width: 28px;
+      height: 28px;
+      opacity: 0.8;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    footer .social a img:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    footer .contacto {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 8px;
+    }
+    footer .logo-footer {
+      max-height: 50px;
+      width: auto;
+      border-radius: 6px;
+      box-shadow: 0 0 8px #fff;
+      margin-top: 8px;
+      animation: logoFooterPulse 4s ease-in-out infinite;
+    }
+    @keyframes logoFooterPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    #loginModal {
+      display: flex;
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background-color: rgba(0,0,0,0.85);
+      z-index: 2000;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #loginModal img {
+      width: 180px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #00ffc3;
+      margin-bottom: 20px;
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    #loginModal input, #loginModal button, #loginModal textarea {
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin: 8px 0;
+      width: 90%;
+      max-width: 300px;
+      border: none;
+    }
+    #loginModal input, #loginModal textarea {
+      background: rgba(255,255,255,0.9);
+      color: #000;
+    }
+    #loginModal button {
+      background: #00ffc3;
+      font-weight: bold;
+      color: black;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #loginModal button:hover {
+      background: #00c2a8;
+      transform: scale(1.05);
+    }
+    #loginModal .opiniones-label {
+      margin-top: 16px;
+      font-size: 1.1rem;
+      color: #ffe600;
+    }
+
+    #settingsModal {
+      display: none;
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.8);
+      justify-content:center;
+      align-items:center;
+      z-index: 1500;
+    }
+    #settingsModal .content {
+      background: rgba(255,255,255,0.1);
+      padding:20px;
+      border-radius:12px;
+      width:90%;
+      max-width:400px;
+      text-align:center;
+      color: white;
+    }
+    #settingsModal button {
+      margin-top:15px;
+      padding:8px 12px;
+      background:#00ffc3;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      color:black;
+      font-weight:bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #settingsModal button:hover {
+      background:#00c2a8;
+      transform: scale(1.05);
+    }
+
+    #tutorialModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1500;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    #tutorialModal video {
+      width: 100%;
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,255,180,0.3);
+      animation: videoPulse 6s ease-in-out infinite;
+    }
+    @keyframes videoPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    #tutorialModal .close-btn {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: #ff4081;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 0 10px #ff4081aa;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #tutorialModal .close-btn:hover {
+      background: #e73370;
+      transform: scale(1.05);
+    }
+
+    #ayudaModal, #contactoModal {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.8);
+      z-index:1500;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+    #ayudaModal > div, #contactoModal > div {
+      background:rgba(255,255,255,0.1);
+      padding:20px;
+      border-radius:12px;
+      max-width:500px;
+      width:90%;
+      color:white;
+    }
+    #ayudaModal button, #contactoModal button {
+      margin-top:15px;
+      padding:8px 12px;
+      background:#00ffc3;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      color:black;
+      font-weight:bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #ayudaModal button:hover, #contactoModal button:hover {
+      background:#00c2a8;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 1000px) {
+      .game-card {
+        flex: 1 1 calc(45% - 20px);
+        max-width: calc(45% - 20px);
+      }
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        padding: 10px;
+      }
+      header .logo-left, header .header-center, header .header-buttons, header .clock, .logo-greeting {
+        margin: 5px 0;
+      }
+      .logo-left img {
+        height: 32px;
+      }
+      .greeting, .clock {
+        font-size: 0.9rem;
+      }
+      .grid-container {
+        gap: 15px;
+      }
+      .game-card {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+      footer {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginModal">
+    <h2>Bienvenido a SmartPlay</h2>
+    <img src="recursos/portada.png" alt="Logo SmartPlay">
+    <input type="text" id="inputNombre" placeholder="Escribe tu nombre">
+    <button onclick="ingresar()">Ingresar</button>
+    <p class="opiniones-label">Déjanos tus comentarios:</p>
+    <textarea id="inputOpinion" rows="4" placeholder="Escribe aquí tu opinión o sugerencia..."></textarea>
+    <button onclick="guardarOpinion()">Enviar opinión</button>
+    <p id="graciasOpinion" style="display:none; color:#00ffc3; margin-top:8px;">¡Gracias por tu opinión!</p>
+    <p style="margin-top:20px; font-size:0.9rem; color:#ccc;">Desarrollado por:</p>
+    <p><img src="recursos/whatsapp.png" alt="WhatsApp" style="width:18px; vertical-align:middle; margin-right:6px;">Lucia Vilca</p>
+    <p><img src="recursos/whatsapp.png" alt="WhatsApp" style="width:18px; vertical-align:middle; margin-right:6px;">Camila Chavez</p>
+    <p><img src="recursos/whatsapp.png" alt="WhatsApp" style="width:18px; vertical-align:middle; margin-right:6px;">Jimena Magaño</p>
+    <p><img src="recursos/whatsapp.png" alt="WhatsApp" style="width:18px; vertical-align:middle; margin-right:6px;">Yuliana Rodriguez</p>
+  </div>
+
+  <header>
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="logo-greeting">
+      <a href="https://www.colegioasuncion.edu.pe/"><img src="recursos/logoC.jpg" alt="Logo Empresa"></a>
+      <div class="greeting" id="greetingText">Hola, Usuario 👋</div>
+    </div>
+    <div class="header-buttons">
+      <button onclick="cambiarNombre()">Cambiar nombre</button>
+      <button onclick="openTutorial()">Video Tutorial</button>
+      <button onclick="abrirContacto()">Contacto</button>
+    </div>
+  </header>
+
+  <main>
+    <h1>Bienvenido a SmartPlay</h1>
+    <div class="logo-central">
+      <img src="recursos/portada.png" alt="SmartPlay Logo">
+    </div>
+    <h2 id="welcomeMsg">Hola, selecciona el juego que te guste</h2>
+
+    <div class="grid-container hidden" id="contenedorJuegos">
+      <div class="game-card" onclick="irAJuego('JuegoDecirLaPalabra/JuegoDecirPalabra.html')">
+        <img src="recursos/juego1.jpg" alt="Decir la Palabra">
+        <div class="game-info">
+          <h3>Decir la Palabra</h3>
+          <p>Reconoce la imagen y di la palabra correcta.</p>
+        </div>
+      </div>
+      <div class="game-card" onclick="irAJuego('JuegoMemoria/JuegoMemoria.html')">
+        <img src="recursos/juego2.jpg" alt="Memoria Visual">
+        <div class="game-info">
+          <h3>Memoria Visual</h3>
+          <p>Encuentra pares iguales.</p>
+        </div>
+      </div>
+      <div class="game-card" onclick="irAJuego('JuegoQuizz/JuegoQuizz.html')">
+        <img src="recursos/juego3.jpg" alt="Quizz Preguntas">
+        <div class="game-info">
+          <h3>Quizz Preguntas</h3>
+          <p>Prueba tus conocimientos.</p>
+        </div>
+      </div>
+      <div class="game-card" onclick="irAJuego('JuegoCalculadora/JuegoCalculadora.html')">
+        <img src="recursos/juego4.jpg" alt="Cerebro Matemático">
+        <div class="game-info">
+          <h3>Cerebro Matemático</h3>
+          <p>Resolver operaciones rápidamente.</p>
+        </div>
+      </div>
+      <div class="game-card" onclick="irAJuego('JuegoBanderas/JuegoBanderas.html')">
+        <img src="recursos/juego5.png" alt="Juego de Banderas">
+        <div class="game-info">
+          <h3>Juego de Banderas</h3>
+          <p>Reconoce banderas del mundo.</p>
+        </div>
+      </div>
+      <div class="game-card" onclick="irAJuego('JuegoAgarrar/JuegoAgarrar.html')">
+        <img src="recursos/juego6.png" alt="Agarra la Imagen">
+        <div class="game-info">
+          <h3>Agarra la Imagen</h3>
+          <p>Selecciona la imagen correcta.</p>
+        </div>
+      </div>
+      <div class="game-card" onclick="irAJuego('JuegoSecuencia/JuegoSecuencia.html')">
+        <img src="recursos/juego7.png" alt="Juego Secuencias">
+        <div class="game-info">
+          <h3>Juego Secuencias</h3>
+          <p>Completa la serie lógica.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="nombres">
+      <span>Desarrollado por:</span>
+      <a href="https://wa.me/+51939417590" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Lucia Vilca</a>
+      <a href="https://wa.me/1234567891" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Camila Chavez</a>
+      <a href="https://wa.me/1234567892" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Jimena Magaño</a>
+      <a href="https://wa.me/1234567893" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Yuliana Rodriguez</a>
+    </div>
+    <div class="social">
+      <a href="https://www.facebook.com/" target="_blank"><img src="recursos/facebook.png" alt="Facebook">FACEBOOK</a>
+      <a href="https://x.com/?lang=es" target="_blank"><img src="recursos/twitter.png" alt="Twitter">TWITTER</a>
+      <a href="https://www.instagram.com/" target="_blank"><img src="recursos/instagram.png" alt="Instagram">INSTAGRAM</a>
+    </div>
+    <div class="contacto">
+      &copy; 2025 SmartPlay. Todos los derechos reservados.
+    </div>
+    <a href="https://www.colegioasuncion.edu.pe/"><img src="recursos/colegio.png" alt="Logo Empresa" class="logo-footer"></a>
+  </footer>
+
+  <div id="settingsModal">
+    <div class="content">
+      <h2 style="color:#00ffc3;">Cambiar Idioma</h2>
+      <div id="google_translate_element"></div>
+      <button onclick="cerrarSettings()">Cerrar</button>
+    </div>
+  </div>
+  <div id="tutorialModal">
+    <button class="close-btn" onclick="closeTutorial()">Cerrar</button>
+    <video id="videoTutorialMain" autoplay muted loop playsinline>
+      <source src="recursos/tutorial.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div id="ayudaModal">
+    <div>
+      <h2>Ayuda</h2>
+      <p>Aquí puedes navegar por los distintos juegos. Usa los botones del header para cambiar idioma, ver tutorial o pantalla completa. ¡Disfruta!</p>
+      <button onclick="closeAyuda()">Cerrar</button>
+    </div>
+  </div>
+  <div id="contactoModal">
+    <div>
+      <h2>Contacto</h2>
+      <p>Escribe a nuestro email: <a href="mailto:contacto@smartplay.com" style="color:#00ffc3;">contacto@smartplay.com</a></p>
+      <p>O visita nuestras redes sociales en el footer.</p>
+      <button onclick="closeContacto()">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    const loginModal = document.getElementById('loginModal');
+    const greetingText = document.getElementById('greetingText');
+    const contenedorJuegos = document.getElementById('contenedorJuegos');
+    const welcomeMsg = document.getElementById('welcomeMsg');
+    const footerEl = document.querySelector('footer');
+    const clockEl = document.getElementById('clock');
+
+    function actualizarReloj() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      clockEl.textContent = `${hh}:${mm}:${ss}`;
+    }
+    setInterval(actualizarReloj, 1000);
+    actualizarReloj();
+
+    function ingresar() {
+      const nombre = document.getElementById('inputNombre').value.trim();
+      if (!nombre) {
+        alert("Por favor, ingresa tu nombre.");
+        return;
+      }
+      localStorage.setItem("nombreJugador", nombre);
+      mostrarContenido(nombre);
+    }
+    function guardarOpinion() {
+      const opinion = document.getElementById('inputOpinion').value.trim();
+      if (!opinion) {
+        alert("Escribe tu opinión antes de enviar.");
+        return;
+      }
+      const prev = JSON.parse(localStorage.getItem('opiniones') || "[]");
+      prev.push({ nombre: localStorage.getItem("nombreJugador")||"", texto: opinion, fecha: new Date().toISOString() });
+      localStorage.setItem('opiniones', JSON.stringify(prev));
+      document.getElementById('inputOpinion').value = '';
+      document.getElementById('graciasOpinion').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('graciasOpinion').style.display = 'none';
+      }, 3000);
+    }
+    function mostrarContenido(nombre) {
+      loginModal.style.display = 'none';
+      greetingText.innerText = `Hola, ${nombre} 👋`;
+      contenedorJuegos.classList.remove('hidden');
+      welcomeMsg.innerText = `Hola ${nombre}, selecciona el juego que te guste`;
+      footerEl.style.display = 'flex';
+    }
+    function cambiarNombre() {
+      loginModal.style.display = 'flex';
+      contenedorJuegos.classList.add('hidden');
+      welcomeMsg.innerText = '';
+      document.getElementById('inputNombre').value = '';
+      localStorage.removeItem("nombreJugador");
+      footerEl.style.display = 'none';
+    }
+    window.onload = function () {
+      const nombre = localStorage.getItem("nombreJugador");
+      if (nombre) {
+        mostrarContenido(nombre);
+      } else {
+        loginModal.style.display = 'flex';
+        contenedorJuegos.classList.add('hidden');
+        footerEl.style.display = 'none';
+      }
+    }
+    function irAJuego(ruta) {
+      window.location.href = ruta;
+    }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function abrirSettings() {
+      document.getElementById("settingsModal").style.display = 'flex';
+    }
+    function cerrarSettings() {
+      document.getElementById("settingsModal").style.display = 'none';
+    }
+    function openTutorial() {
+      const tm = document.getElementById("tutorialModal");
+      tm.style.display = 'flex';
+      const vid = document.getElementById('videoTutorialMain');
+      vid.play();
+    }
+    function closeTutorial() {
+      const tm = document.getElementById("tutorialModal");
+      tm.style.display = 'none';
+      const vid = document.getElementById('videoTutorialMain');
+      vid.pause();
+      vid.currentTime = 0;
+    }
+    function abrirAyuda() {
+      document.getElementById('ayudaModal').style.display = 'flex';
+    }
+    function closeAyuda() {
+      document.getElementById('ayudaModal').style.display = 'none';
+    }
+    function abrirContacto() {
+      document.getElementById('contactoModal').style.display = 'flex';
+    }
+    function closeContacto() {
+      document.getElementById('contactoModal').style.display = 'none';
+    }
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {pageLanguage:'es', layout:google.translate.TranslateElement.InlineLayout.SIMPLE},
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
