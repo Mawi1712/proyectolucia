@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Juego de Figuras</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding-bottom: 100px;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(-45deg, #6a0dad, #0f52ba, #b22222);
+      background-size: 400% 400%;
+      animation: fondoAnimado 15s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      flex-direction: column;
+      position: relative;
+    }
+    @keyframes fondoAnimado {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pantalla {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      max-width: 600px;
+      width: 90%;
+      animation: fadeIn 0.7s ease;
+      position: relative;
+      margin: auto;
+      z-index: 2;
+    }
+    .pantalla.activa {
+      display: flex;
+    }
+    .boton {
+      margin: 10px;
+      padding: 14px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #00ffc3;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s ease;
+    }
+    .boton:hover {
+      background-color: #00c2a8;
+      transform: scale(1.05);
+    }
+    .logo {
+      width: 150px;
+      max-width: 40%;
+      height: auto;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffc3;
+    }
+    #bienvenida {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: #00ffc3;
+    }
+    #descripcionJuego {
+      font-size: 1.2rem;
+      color: #bdeeee;
+      max-width: 500px;
+      margin: 0 auto 25px auto;
+      line-height: 1.4;
+    }
+    #panelSuperior {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #00ffc3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 10px;
+      box-sizing: border-box;
+      z-index: 20;
+      flex-wrap: wrap;
+    }
+    #panelSuperior > div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #panelSuperior #timer {
+      font-size: 0.9em;
+    }
+    #panelSuperior #meta {
+      font-size: 0.9em;
+    }
+    #panelSuperior #motivacion img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00ffc3;
+    }
+    #panelSuperior button {
+      font-size: 0.8em;
+      padding: 4px 8px;
+      margin-left: 5px;
+      background: #00ffc3;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #panelSuperior button:hover {
+      background: #00c2a8;
+    }
+    #zona-juego {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background: rgba(255,255,255,0.05);
+      border: 2px dashed #00ffc3;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .figura {
+      position: absolute;
+      font-size: 3rem;
+      cursor: pointer;
+      user-select: none;
+      animation: caer 3s linear forwards;
+    }
+    @keyframes caer {
+      from { transform: translateY(-100px) rotate(0deg); opacity: 0.9; }
+      to   { transform: translateY(450px) rotate(360deg); opacity: 0.1; }
+    }
+    .figura:hover {
+      transform: scale(1.2);
+    }
+    #instruccion {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #00ffc3;
+    }
+    #temporizador, #tituloResultado, #aciertos, #fallos {
+      color: #ffeb3b;
+      font-weight: bold;
+    }
+    #pantallaTutorial .pantalla {
+      max-width: 800px;
+    }
+    #pantallaTutorial video {
+      width: 100%;
+      max-width: 800px;
+      max-height: 450px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,255,180,0.3);
+      margin-bottom: 20px;
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ffc3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      box-sizing: border-box;
+      font-size: 0.8em;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+    footer .izquierda {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    footer .izquierda a {
+      display: flex;
+      align-items: center;
+      color: #00ffc3;
+      text-decoration: none;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    footer .izquierda img {
+      width: 20px;
+      height: 20px;
+    }
+    footer .derecha {
+      position: absolute;
+      right: 20px;
+      bottom: 10px;
+    }
+    footer .derecha img {
+      height: 80px;
+      width: auto;
+      animation: logoPulse 4s infinite ease-in-out;
+    }
+    @keyframes logoPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @media (max-width: 600px) {
+      .pantalla {
+        padding: 20px 15px;
+        width: 95%;
+      }
+      #panelSuperior {
+        padding: 5px;
+      }
+      #panelSuperior #timer, #panelSuperior #meta {
+        font-size: 0.8em;
+      }
+      #panelSuperior #motivacion img {
+        width: 20px;
+        height: 20px;
+      }
+      #panelSuperior button {
+        padding: 4px 6px;
+        font-size: 0.7em;
+      }
+      .boton {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+      #zona-juego {
+        height: 300px;
+      }
+      footer .derecha {
+        right: 10px;
+        bottom: 5px;
+      }
+      footer .derecha img {
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="panelSuperior" style="display:none;">
+    <div id="timer">00:00</div>
+    <div id="meta">Haz clic en: <span id="targetFigura"></span></div>
+    <div id="motivacion"><span id="textoMotivacion">Tú puedes!</span><img src="recursos/colegio.png" alt="Mascota"></div>
+    <div>
+      <button onclick="toggleFullscreen()">⛶</button>
+    </div>
+  </div>
+
+  <div id="pantallaInicio" class="pantalla activa">
+    <img src="recursos/portada.png" alt="Logo de la empresa" class="logo" />
+    <div id="bienvenida">Bienvenido, <span id="nombreUsuario">Jugador</span> a: Juego de Figuras</div>
+    <p id="descripcionJuego">
+      En este juego deberás hacer clic en la figura indicada mientras caen varias figuras por la pantalla.<br>
+      ¡Pon a prueba tu rapidez y concentración para conseguir la mayor cantidad de aciertos posibles!
+    </p>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0;">
+      <button class="boton" onclick="iniciarTutorial('facil')">Fácil (30s)</button>
+      <button class="boton" onclick="iniciarTutorial('medio')">Medio (45s)</button>
+      <button class="boton" onclick="iniciarTutorial('dificil')">Difícil (45s velocidad mayor)</button>
+    </div>
+    <button class="boton" onclick="volver()">Volver a la Principal</button>
+  </div>
+
+  <div id="pantallaTutorial" class="pantalla">
+    <h2 style="color: #00ffc3; margin-bottom: 15px;">Video Tutorial</h2>
+    <video id="videoTutorial" autoplay muted loop playsinline>
+      <source src="recursos/tutorial.mp4" type="video/mp4">
+    </video>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:15px;">
+      <button class="boton" onclick="volverAPantallaInicio()">Volver</button>
+      <button class="boton" onclick="iniciarJuegoDesdeTutorial()">Iniciar Juego</button>
+    </div>
+  </div>
+
+  <div id="pantallaJuego" class="pantalla">
+    <div id="temporizador" style="margin-bottom:10px;"></div>
+    <div id="instruccion" style="margin-bottom:10px;"></div>
+    <div id="zona-juego"></div>
+  </div>
+
+  <div id="pantallaResultado" class="pantalla">
+    <h2 id="tituloResultado">Juego Terminado</h2>
+    <p id="aciertos"></p>
+    <p id="fallos"></p>
+    <button class="boton" onclick="reiniciar()">Volver al Inicio</button>
+  </div>
+
+  <div id="settingsModal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:30;">
+    <div style="background: rgba(255,255,255,0.1); padding:20px; border-radius:12px; width:90%; max-width:400px; text-align:center;">
+      <h2 style="color:#00ffc3;">Ajustes</h2>
+      <div id="google_translate_element"></div>
+      <button class="boton" onclick="cerrarSettings()">Cerrar</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="izquierda">
+      <span>Juego hecho por:</span>
+      <a href="https://wa.me/+51939417590" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Lucia Vilca</a>
+      <a href="https://wa.me/1234567891" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Camila Chavez</a>
+      <a href="https://wa.me/1234567892" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Jimena Magaño</a>
+      <a href="https://wa.me/1234567893" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Yuliana Rodriguez</a>
+    </div>
+    <a href="https://www.colegioasuncion.edu.pe/"><div class="derecha"><img src="recursos/colegio.png" alt="Logo Empresa"></div></a>
+  </footer>
+
+  <script>
+    const figuras = ['🔳', '🟩', '🟦', '🟨', '⬛', '🔵', '🟧'];
+    let figuraObjetivo = '';
+    let aciertos = 0;
+    let fallos = 0;
+    let tiempoTotal = 30;
+    let velocidadFigura = 2000;
+    let intervaloFiguras, cuentaRegresiva, cronometro;
+    const zonaJuego = document.getElementById("zona-juego");
+
+    const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+    document.getElementById("nombreUsuario").innerText = nombre;
+
+    window.onload = () => {
+      document.getElementById('bienvenida').innerHTML = `Bienvenido, <span id="nombreUsuario">${nombre}</span> a: Juego de Figuras`;
+    };
+
+    function mostrarPantalla(id) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+      document.getElementById(id).classList.add('activa');
+    }
+
+    function iniciarTutorial(dificultad) {
+      nivelActual = dificultad;
+      mostrarPantalla('pantallaTutorial');
+      document.getElementById('panelSuperior').style.display = 'none';
+      document.getElementById("textoMotivacion").textContent = `Tú puedes, ${nombre}`;
+    }
+    function volverAPantallaInicio() {
+      mostrarPantalla('pantallaInicio');
+    }
+    function iniciarJuegoDesdeTutorial() {
+      if (nivelActual === 'facil') {
+        tiempoTotal = 30; velocidadFigura = 1800;
+      } else if (nivelActual === 'medio') {
+        tiempoTotal = 45; velocidadFigura = 1300;
+      } else {
+        tiempoTotal = 45; velocidadFigura = 800;
+      }
+      aciertos = 0; fallos = 0;
+      indexFigura = 0;
+      document.getElementById('panelSuperior').style.display = 'flex';
+      document.getElementById("textoMotivacion").textContent = `Tú puedes, ${nombre}`;
+      document.getElementById('targetFigura').innerText = '';
+      mostrarPantalla('pantallaJuego');
+      zonaJuego.innerHTML = '';
+      inicioTiempo = Date.now();
+      clearInterval(timerInterval);
+      actualizarTimer();
+      timerInterval = setInterval(actualizarTimer, 500);
+      nuevaInstruccion();
+      let tiempoRestante = tiempoTotal;
+      cronometro = setInterval(() => {
+        tiempoRestante--;
+        if (tiempoRestante <= 0) {
+          clearInterval(cronometro);
+        }
+      }, 1000);
+      cuentaRegresiva = setTimeout(mostrarResultados, tiempoTotal * 1000);
+      intervaloFiguras = setInterval(soltarFigura, velocidadFigura);
+    }
+
+    let nivelActual = 'facil';
+    let inicioTiempo = 0;
+    let timerInterval = null;
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function abrirSettings() {
+      document.getElementById("settingsModal").style.display = 'flex';
+    }
+    function cerrarSettings() {
+      document.getElementById("settingsModal").style.display = 'none';
+    }
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {pageLanguage:'es', layout:google.translate.TranslateElement.InlineLayout.SIMPLE},
+        'google_translate_element'
+      );
+    }
+
+    function actualizarTimer() {
+      const elapsed = Date.now() - inicioTiempo;
+      const seconds = Math.floor(elapsed / 1000) % 60;
+      const minutes = Math.floor(elapsed / 60000);
+      const mm = minutes.toString().padStart(2, "0");
+      const ss = seconds.toString().padStart(2, "0");
+      document.getElementById("timer").textContent = mm + ":" + ss;
+    }
+
+    function nuevaInstruccion() {
+      figuraObjetivo = figuras[Math.floor(Math.random() * figuras.length)];
+      document.getElementById("targetFigura").innerText = figuraObjetivo;
+      document.getElementById("instruccion").innerText = `¡Tú puedes, ${nombre}! Haz clic en: ${figuraObjetivo}`;
+    }
+
+    function soltarFigura() {
+      const figuraEl = document.createElement("div");
+      figuraEl.className = "figura";
+      const tipo = figuras[Math.floor(Math.random() * figuras.length)];
+      figuraEl.innerText = tipo;
+
+      const zonaWidth = zonaJuego.clientWidth;
+      figuraEl.style.left = Math.random() * (zonaWidth - 50) + "px";
+
+      let clickeada = false;
+      figuraEl.addEventListener('click', () => {
+        clickeada = true;
+        if (tipo === figuraObjetivo) {
+          aciertos++;
+        } else {
+          fallos++;
+        }
+        nuevaInstruccion();
+        figuraEl.remove();
+      });
+
+      zonaJuego.appendChild(figuraEl);
+
+      setTimeout(() => {
+        if (!clickeada && tipo === figuraObjetivo) {
+          fallos++;
+          nuevaInstruccion();
+        }
+        if (zonaJuego.contains(figuraEl)) figuraEl.remove();
+      }, 4000);
+    }
+
+    function mostrarResultados() {
+      clearInterval(intervaloFiguras);
+      clearInterval(cronometro);
+      clearInterval(timerInterval);
+      document.getElementById('panelSuperior').style.display = 'none';
+      mostrarPantalla('pantallaResultado');
+      document.getElementById("aciertos").innerText = `✅ Aciertos: ${aciertos}`;
+      document.getElementById("fallos").innerText = `❌ Fallos: ${fallos}`;
+      document.getElementById("tituloResultado").innerText = `Estos son tus resultados, ${nombre}`;
+    }
+
+    function reiniciar() {
+      document.getElementById('panelSuperior').style.display = 'none';
+      mostrarPantalla('pantallaInicio');
+    }
+    function volver() {
+      window.location.href = "../index.html";
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
