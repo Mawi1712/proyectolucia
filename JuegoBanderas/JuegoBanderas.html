@@ -1,1 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Descubre la Bandera</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding-bottom: 100px;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(-45deg, #6a0dad, #0f52ba, #b22222);
+      background-size: 400% 400%;
+      animation: fondoAnimado 15s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      flex-direction: column;
+      position: relative;
+    }
+    @keyframes fondoAnimado {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pantalla {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      max-width: 600px;
+      width: 90%;
+      animation: fadeIn 0.7s ease;
+      position: relative;
+      margin: auto;
+      z-index: 2;
+    }
+    .pantalla.activa {
+      display: flex;
+    }
+    .boton {
+      margin: 10px;
+      padding: 14px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #00ffc3;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s ease;
+    }
+    .boton:hover {
+      background-color: #00c2a8;
+      transform: scale(1.05);
+    }
+    .bandera {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffc3;
+      margin-bottom: 30px;
+    }
+    .opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+    .opciones button {
+      background-color: #1e90ff;
+      color: white;
+      padding: 14px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      transition: 0.3s;
+    }
+    .opciones button:hover {
+      background-color: #104e8b;
+    }
+    #detalleResultado {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+    .tarjetaResultado {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 1rem;
+      box-shadow: 0 0 10px rgba(0,255,255,0.2);
+      transition: 0.3s ease;
+    }
+    .tarjetaResultado:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.02);
+    }
+    .correcto { color: #00ff00; font-weight: bold; }
+    .incorrecto { color: #ff4d4d; font-weight: bold; }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInPregunta 0.5s forwards;
+    }
+    @keyframes fadeInPregunta {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    #headerJuego {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #headerJuego img {
+      width: 40px;
+      height: auto;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #00ffc3;
+    }
+    #headerJuego span {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #00ffc3;
+    }
+    #bienvenida {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 15px 0 8px 0;
+      color: #00ffc3;
+    }
+    #descripcionJuego {
+      font-size: 1.2rem;
+      color: #bdeeee;
+      max-width: 500px;
+      margin: 0 auto 25px auto;
+      line-height: 1.4;
+    }
+    #panelSuperior {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #00ffc3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 10px;
+      box-sizing: border-box;
+      z-index: 20;
+      flex-wrap: wrap;
+    }
+    #panelSuperior > div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #panelSuperior #timer {
+      font-size: 0.9em;
+    }
+    #panelSuperior #preguntaInfo {
+      font-size: 0.9em;
+    }
+    #panelSuperior #motivacion img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00ffc3;
+    }
+    #panelSuperior button {
+      font-size: 0.8em;
+      padding: 4px 8px;
+      margin-left: 5px;
+      background: #00ffc3;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #panelSuperior button:hover {
+      background: #00c2a8;
+    }
+    /* Tutorial */
+    #pantallaTutorial .pantalla {
+      max-width: 800px;
+    }
+    #pantallaTutorial video {
+      width: 100%;
+      max-width: 800px;
+      max-height: 450px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,255,180,0.3);
+      margin-bottom: 20px;
+    }
+    /* Footer */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ffc3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      box-sizing: border-box;
+      font-size: 0.8em;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+    footer .izquierda {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    footer .izquierda a {
+      display: flex;
+      align-items: center;
+      color: #00ffc3;
+      text-decoration: none;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    footer .izquierda img {
+      width: 20px;
+      height: 20px;
+    }
+    footer .derecha {
+      position: absolute;
+      right: 20px;
+      bottom: 10px;
+    }
+    footer .derecha img {
+      height: 80px;
+      width: auto;
+      animation: logoPulse 4s infinite ease-in-out;
+    }
+    @keyframes logoPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @media (max-width: 600px) {
+      .pantalla {
+        padding: 20px 15px;
+        width: 95%;
+      }
+      #panelSuperior {
+        padding: 5px;
+      }
+      #panelSuperior #timer, #panelSuperior #preguntaInfo {
+        font-size: 0.8em;
+      }
+      #panelSuperior #motivacion img {
+        width: 20px;
+        height: 20px;
+      }
+      #panelSuperior button {
+        padding: 4px 6px;
+        font-size: 0.7em;
+      }
+      .boton {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+      .bandera {
+        max-width: 90%;
+      }
+      footer .derecha {
+        right: 10px;
+        bottom: 5px;
+      }
+      footer .derecha img {
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="panelSuperior" style="display: none;">
+    <div id="timer">00:00</div>
+    <div id="preguntaInfo">Pregunta 0/0</div>
+    <div id="motivacion"><span id="textoMotivacion">Tú puedes!</span><img src="recursos/colegio.png" alt="Mascota"></div>
+    <div>
+      <button onclick="toggleFullscreen()">⛶</button>
+    </div>
+  </div>
+
+  <div id="pantallaInicio" class="pantalla activa">
+    <img src="recursos/portada.png" alt="Logo" style="width: 150px; margin-bottom: 15px;" />
+    <div id="bienvenida">Bienvenido, <span id="nombreUsuario">Jugador</span> a: Descubre la Bandera</div>
+    <p id="descripcionJuego">
+      Pon a prueba tus conocimientos sobre las banderas del mundo. Selecciona la dificultad y trata de identificar correctamente las banderas que aparecerán.<br>
+      ¡Diviértete y aprende al mismo tiempo!
+    </p>
+    <h2 id="textoInicio">Selecciona tu dificultad</h2>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0;">
+      <button class="boton" onclick="iniciarTutorial('facil')">Fácil</button>
+      <button class="boton" onclick="iniciarTutorial('medio')">Medio</button>
+      <button class="boton" onclick="iniciarTutorial('dificil')">Difícil</button>
+    </div>
+    <button class="boton" onclick="volver()">Volver a la Principal</button>
+  </div>
+
+  <div id="pantallaTutorial" class="pantalla">
+    <h2 style="color: #00ffc3; margin-bottom: 15px;">Video Tutorial</h2>
+    <video id="videoTutorial" autoplay muted loop playsinline>
+      <source src="recursos/tutorial.mp4" type="video/mp4">
+    </video>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:15px;">
+      <button class="boton" onclick="volverAPantallaInicio()">Volver</button>
+      <button class="boton" onclick="iniciarJuegoDesdeTutorial()">Iniciar Juego</button>
+    </div>
+  </div>
+
+  <div id="pantallaJuego" class="pantalla">
+    <div id="headerJuego" style="display: none;">
+      <span id="mensajeJuego"></span>
+      <img src="recursos/colegio.png" alt="Organización">
+    </div>
+    <img id="imagenBandera" class="bandera" src="" alt="Bandera">
+    <div class="opciones" id="opciones"></div>
+  </div>
+
+  <div id="pantallaResultado" class="pantalla">
+    <h2 id="tituloResultado">Resultados</h2>
+    <div id="detalleResultado"></div>
+    <button class="boton" onclick="volverInicio()">Volver al Inicio</button>
+  </div>
+
+  <div id="settingsModal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:30;">
+    <div style="background: rgba(255,255,255,0.1); padding:20px; border-radius:12px; width:90%; max-width:400px; text-align:center;">
+      <h2 style="color:#00ffc3;">Ajustes</h2>
+      <div id="google_translate_element"></div>
+      <button class="boton" onclick="cerrarSettings()">Cerrar</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="izquierda">
+      <span>Juego hecho por:</span>
+      <a href="https://wa.me/1234567890" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Lucia Vilca</a>
+      <a href="https://wa.me/1234567891" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Camila Chavez</a>
+      <a href="https://wa.me/1234567892" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Jimena Magaño</a>
+      <a href="https://wa.me/1234567893" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Yuliana Rodriguez</a>
+    </div>
+    <a href="https://www.colegioasuncion.edu.pe/"><div class="derecha"><img src="recursos/colegio.png" alt="Logo Empresa"></div></a>
+  </footer>
+
+  <script>
+    const paises = [
+      'Perú','Argentina','Brasil','Francia','Japón','Italia','Canadá','Chile','Alemania','India',
+      'España','México','Australia','Egipto','China','Rusia','Colombia','Venezuela','Suecia','Noruega',
+      'Portugal','Irlanda','Grecia','Corea del Sur','Sudáfrica','Ecuador','Bolivia','Paraguay','Uruguay','Cuba',
+      'Panamá','Nicaragua','Guatemala','El Salvador','Honduras','República Dominicana','Finlandia','Polonia','Ucrania','Turquía',
+      'Irán','Arabia Saudita','Tailandia','Vietnam','Indonesia','Malasia','Filipinas','Nueva Zelanda','Países Bajos','Bélgica',
+      'Suiza','Dinamarca','Austria','Israel','Pakistán','Bangladés','Kazajistán','Singapur','Qatar'
+    ];
+    const paisesFacil = paises.slice(0, 20);
+    const paisesMedio = paises.slice(20, 40);
+    const paisesDificil = paises.slice(40, 60);
+
+    function crearPreguntas(listaPaises) {
+      return listaPaises.map(pais => {
+        let opciones = [pais];
+        while (opciones.length < 5) {
+          const opc = listaPaises[Math.floor(Math.random() * listaPaises.length)];
+          if (!opciones.includes(opc)) opciones.push(opc);
+        }
+        opciones.sort(() => Math.random() - 0.5);
+        return {
+          imagen: `recursos/${pais.toLowerCase().replace(/\s+/g, '')}.png`,
+          correcta: pais,
+          opciones
+        };
+      });
+    }
+    const preguntasPorNivel = {
+      facil: crearPreguntas(paisesFacil),
+      medio: crearPreguntas(paisesMedio),
+      dificil: crearPreguntas(paisesDificil)
+    };
+
+    let nivelActual = 'facil';
+    let preguntas = [];
+    let respuestas = [];
+    let indexPregunta = 0;
+    let inicioTiempo = 0;
+    let timerInterval = null;
+
+    window.onload = () => {
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      document.getElementById('nombreUsuario').textContent = nombre;
+      document.getElementById('textoInicio').textContent = `Selecciona tu dificultad, ${nombre}`;
+    };
+
+    function mostrarPantalla(id) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+      document.getElementById(id).classList.add('activa');
+    }
+
+    function iniciarTutorial(nivel) {
+      nivelActual = nivel;
+      mostrarPantalla('pantallaTutorial');
+      document.getElementById('panelSuperior').style.display = 'none';
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      document.getElementById("textoMotivacion").textContent = `Tú puedes, ${nombre}`;
+    }
+    function volverAPantallaInicio() {
+      mostrarPantalla('pantallaInicio');
+    }
+    function iniciarJuegoDesdeTutorial() {
+      preguntas = [...preguntasPorNivel[nivelActual]].sort(() => Math.random() - 0.5);
+      respuestas = [];
+      indexPregunta = 0;
+      document.getElementById('panelSuperior').style.display = 'flex';
+      mostrarPantalla('pantallaJuego');
+      const header = document.getElementById('headerJuego');
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      document.getElementById('mensajeJuego').textContent = `¡Tú puedes, ${nombre}!`;
+      header.style.display = 'flex';
+      inicioTiempo = Date.now();
+      clearInterval(timerInterval);
+      actualizarTimer();
+      timerInterval = setInterval(actualizarTimer, 500);
+      mostrarPregunta();
+    }
+
+    function generarImagenBandera(ruta) {
+      return ruta;
+    }
+
+    function actualizarTimer() {
+      const elapsed = Date.now() - inicioTiempo;
+      const seconds = Math.floor(elapsed / 1000) % 60;
+      const minutes = Math.floor(elapsed / 60000);
+      const mm = minutes.toString().padStart(2, "0");
+      const ss = seconds.toString().padStart(2, "0");
+      document.getElementById("timer").textContent = mm + ":" + ss;
+    }
+
+    function mostrarPregunta() {
+      const total = preguntas.length;
+      document.getElementById("preguntaInfo").textContent = `Pregunta ${indexPregunta + 1}/${total}`;
+      const actual = preguntas[indexPregunta];
+      const banderaEl = document.getElementById('imagenBandera');
+      const contenedor = document.getElementById('opciones');
+      banderaEl.classList.remove('fade-in');
+      contenedor.classList.remove('fade-in');
+      setTimeout(() => {
+        banderaEl.src = generarImagenBandera(actual.imagen);
+        banderaEl.alt = `Bandera de ${actual.correcta}`;
+        banderaEl.classList.add('fade-in');
+        contenedor.innerHTML = '';
+        contenedor.classList.add('fade-in');
+        actual.opciones.sort(() => Math.random() - 0.5).forEach(op => {
+          const btn = document.createElement('button');
+          btn.textContent = op;
+          btn.onclick = () => {
+            respuestas.push({
+              bandera: actual.imagen,
+              respuesta: op,
+              correcta: actual.correcta
+            });
+            indexPregunta++;
+            if (indexPregunta < preguntas.length) {
+              mostrarPregunta();
+            } else {
+              mostrarResultado();
+            }
+          };
+          contenedor.appendChild(btn);
+        });
+      }, 50);
+    }
+
+    function mostrarResultado() {
+      clearInterval(timerInterval);
+      mostrarPantalla('pantallaResultado');
+      document.getElementById('panelSuperior').style.display = 'none';
+      const detalle = document.getElementById('detalleResultado');
+      detalle.innerHTML = '';
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      document.getElementById('tituloResultado').textContent = `Estos son tus resultados, ${nombre}`;
+      respuestas.forEach(r => {
+        const nombreBandera = r.bandera.split('/').pop().replace('.png', '');
+        const div = document.createElement('div');
+        div.className = "tarjetaResultado";
+        const estado = r.respuesta === r.correcta ?
+          `<span class="correcto">✅ Correcto</span>` :
+          `<span class="incorrecto">❌ Incorrecto</span>`;
+        div.innerHTML = `
+          ${estado}<br>
+          <strong>Bandera:</strong> ${nombreBandera.toUpperCase()}<br>
+          <strong>Tu respuesta:</strong> ${r.respuesta}<br>
+          <strong>Correcta:</strong> ${r.correcta}
+        `;
+        detalle.appendChild(div);
+      });
+    }
+
+    function volverInicio() {
+      document.getElementById('panelSuperior').style.display = 'none';
+      mostrarPantalla('pantallaInicio');
+    }
+    function volver() {
+      window.location.href = "../index.html";
+    }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function abrirSettings() {
+      document.getElementById("settingsModal").style.display = 'flex';
+    }
+    function cerrarSettings() {
+      document.getElementById("settingsModal").style.display = 'none';
+    }
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {pageLanguage:'es', layout:google.translate.TranslateElement.InlineLayout.SIMPLE},
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
 
