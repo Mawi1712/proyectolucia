@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juego de Operaciones Combinadas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0 0 100px 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(-45deg, #6a0dad, #0f52ba, #b22222);
+      background-size: 400% 400%;
+      animation: fondoAnimado 15s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      flex-direction: column;
+      position: relative;
+    }
+    @keyframes fondoAnimado {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .pantalla {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      width: 90%;
+      max-width: 600px;
+      animation: fadeIn 0.5s ease;
+      position: relative;
+      z-index: 2;
+      margin: auto;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .pantalla.activa {
+      display: flex;
+    }
+    .boton {
+      margin: 10px;
+      padding: 14px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #00ffc3;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s ease;
+    }
+    .boton:hover {
+      background-color: #00c2a8;
+      transform: scale(1.05);
+    }
+    .pregunta {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .opciones button {
+      background-color: #1e90ff;
+      color: white;
+      padding: 14px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      transition: 0.3s;
+    }
+    .opciones button:hover {
+      background-color: #104e8b;
+    }
+    #personaje {
+      width: 100px;
+      max-width: 30%;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px #00ffc3;
+    }
+    #detalleResultado {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      width: 100%;
+      font-size: 1rem;
+      text-align: left;
+      line-height: 1.4;
+    }
+    .resultado-item {
+      background-color: rgba(255, 255, 255, 0.05);
+      margin-bottom: 8px;
+      padding: 8px;
+      border-radius: 10px;
+    }
+    .correcto { color: #00ff99; }
+    .incorrecto { color: #ff6666; }
+    #headerJuego {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #headerJuego img {
+      width: 40px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 12px #00ffc3;
+    }
+    #headerJuego span {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #00ffc3;
+    }
+    #descripcionJuego {
+      font-size: 1rem;
+      color: #bdeeee;
+      margin: 10px 0 20px 0;
+      max-width: 500px;
+    }
+    #panelSuperior {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #00ffc3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 10px;
+      box-sizing: border-box;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+    #panelSuperior > div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #panelSuperior #timer {
+      font-size: 0.9em;
+    }
+    #panelSuperior #preguntaInfo {
+      font-size: 0.9em;
+    }
+    #panelSuperior #motivacion img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00ffc3;
+    }
+    #panelSuperior button {
+      font-size: 0.8em;
+      padding: 4px 8px;
+      margin-left: 5px;
+      background: #00ffc3;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #panelSuperior button:hover {
+      background: #00c2a8;
+    }
+    #juego {
+      display: none;
+      width: 100%;
+      position: relative;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 60px;
+    }
+    #juego.mostrando {
+      display: flex;
+    }
+    .contenido-juego {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+    }
+    #settingsModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    #settingsContent {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    #settingsContent button {
+      margin-top: 15px;
+      background: #00ffc3;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #settingsContent button:hover {
+      background: #00c2a8;
+    }
+    #pantallaTutorial video {
+      width: 100%;
+      max-width: 800px;
+      max-height: 450px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,255,180,0.3);
+      margin-bottom: 20px;
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ffc3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      box-sizing: border-box;
+      font-size: 0.8em;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+    footer .izquierda {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    footer .izquierda a {
+      display: flex;
+      align-items: center;
+      color: #00ffc3;
+      text-decoration: none;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    footer .izquierda img {
+      width: 20px;
+      height: 20px;
+    }
+    footer .derecha {
+      position: absolute;
+      right: 20px;
+      bottom: 10px;
+    }
+    footer .derecha img {
+      height: 80px;
+      width: auto;
+      animation: logoPulse 4s infinite ease-in-out;
+    }
+    @keyframes logoPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @media (max-width: 600px) {
+      .pantalla {
+        padding: 20px 15px;
+        width: 95%;
+      }
+      #panelSuperior {
+        padding: 5px;
+      }
+      #panelSuperior #timer, #panelSuperior #preguntaInfo {
+        font-size: 0.8em;
+      }
+      #panelSuperior #motivacion img {
+        width: 20px;
+        height: 20px;
+      }
+      #panelSuperior button {
+        padding: 4px 6px;
+        font-size: 0.7em;
+      }
+      .boton {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+      .pregunta {
+        font-size: 1.2rem;
+      }
+      #personaje {
+        width: 80px;
+      }
+      #detalleResultado {
+        font-size: 0.9rem;
+      }
+      #pantallaTutorial video {
+        max-width: 100%;
+        max-height: 300px;
+      }
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px 10px;
+        font-size: 0.7em;
+      }
+      footer .derecha {
+        right: 10px;
+        bottom: 5px;
+      }
+      footer .derecha img {
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="pantallaInicio" class="pantalla activa">
+    <img src="recursos/portada.png" alt="Logo" style="width: 150px; max-width: 40%; margin-bottom: 15px;">
+    <h2 id="textoBienvenida" style="font-weight: bold; font-size: 1.6rem; color: #00ffc3;">Bienvenido, jugador</h2>
+    <h3 id="nombreJuego" style="margin: 0 0 15px 0;">a: Juego de Operaciones Combinadas</h3>
+    <p id="descripcionJuego">Pon a prueba tus habilidades matemáticas resolviendo operaciones combinadas. ¡Demuestra cuánto sabes!</p>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 15px 0;">
+      <button class="boton" onclick="iniciarTutorial('facil')">Fácil</button>
+      <button class="boton" onclick="iniciarTutorial('intermedio')">Intermedio</button>
+      <button class="boton" onclick="iniciarTutorial('dificil')">Difícil</button>
+    </div>
+    <button class="boton" onclick="volverALaPrincipal()">Volver a la Principal</button>
+  </div>
+
+  <div id="pantallaTutorial" class="pantalla">
+    <h2 style="color: #00ffc3; margin-bottom: 15px;">Video Tutorial</h2>
+    <video id="videoTutorial" autoplay muted loop playsinline>
+      <source src="recursos/tutorial.mp4" type="video/mp4">
+    </video>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:15px;">
+      <button class="boton" onclick="volverAPantallaInicio()">Volver</button>
+      <button class="boton" onclick="iniciarJuegoDesdeTutorial()">Iniciar Juego</button>
+    </div>
+  </div>
+
+  <div id="juego">
+    <div id="panelSuperior">
+      <div id="timer">00:00</div>
+      <div id="preguntaInfo">Pregunta 0/0</div>
+      <div id="motivacion"><span id="textoMotivacion">Tú puedes!</span><img src="recursos/colegio.png" alt="Mascota"></div>
+      <div>
+        <button onclick="toggleFullscreen()">⛶</button>
+      </div>
+    </div>
+    <div class="contenido-juego">
+      <div id="pantallaJuego" class="pantalla activa">
+        <div id="headerJuego">
+          <span id="mensajeJuego" style="color:#00ffc3; font-size:1.2rem; font-weight:bold;"></span>
+          <img src="recursos/colegio.png" alt="Organización">
+        </div>
+        <div class="pregunta" id="textoOperacion"></div>
+        <img id="personaje" src="" alt="Personaje">
+        <div class="opciones" id="opciones"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pantallaResultado" class="pantalla">
+    <h2 id="tituloResultado" style="color:#00ffc3;">Resultados del Nivel</h2>
+    <div id="detalleResultado"></div>
+    <button class="boton" onclick="volverAlInicioJuego()">Volver al Inicio</button>
+  </div>
+
+  <div id="settingsModal">
+    <div id="settingsContent">
+      <h2 style="color:#00ffc3;">Ajustes</h2>
+      <div id="google_translate_element"></div>
+      <button onclick="cerrarSettings()">Cerrar</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="izquierda">
+      <span>Juego hecho por:</span>
+      <a href="https://wa.me/+51939417590" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Lucia Vilca</a>
+      <a href="https://wa.me/1234567891" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Camila Chavez</a>
+      <a href="https://wa.me/1234567892" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Jimena Magaño</a>
+      <a href="https://wa.me/1234567893" target="_blank"><img src="recursos/whatsapp.png" alt="WhatsApp">Yuliana Rodriguez</a>
+    </div>
+    <div class="derecha"><img src="recursos/colegio.png" alt="Logo Empresa"></div>
+  </footer>
+
+  <script>
+    const personajes = [
+      'recursos/personaje1.png',
+      'recursos/personaje2.png',
+      'recursos/personaje3.png',
+      'recursos/personaje4.png',
+      'recursos/personaje5.png'
+    ];
+    let nivelActual = '';
+    let preguntas = [];
+    let respuestas = [];
+    let indexPregunta = 0;
+    let inicioTiempo = 0;
+    let timerInterval = null;
+
+    window.onload = () => {
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      document.getElementById('textoBienvenida').textContent = `Bienvenido, ${nombre}`;
+      document.getElementById('nombreJuego').textContent = 'a: Juego de Operaciones Combinadas';
+    };
+
+    function mostrarPantalla(id) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+      const pantalla = document.getElementById(id);
+      if (pantalla) pantalla.classList.add('activa');
+    }
+
+    function iniciarTutorial(nivel) {
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      nivelActual = nivel;
+      mostrarPantalla('pantallaTutorial');
+      document.getElementById("textoMotivacion").textContent = `Tú puedes, ${nombre}`;
+    }
+
+    function volverAPantallaInicio() {
+      mostrarPantalla('pantallaInicio');
+    }
+
+    function iniciarJuegoDesdeTutorial() {
+      configurarPreguntas();
+      indexPregunta = 0;
+      respuestas = [];
+      document.getElementById('juego').classList.add('mostrando');
+      mostrarPantalla('pantallaJuego');
+      document.getElementById("mensajeJuego").textContent = `¡Tú puedes, ${localStorage.getItem("nombreJugador") || "Jugador"}!`;
+      inicioTiempo = Date.now();
+      actualizarTimer();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(actualizarTimer, 500);
+      mostrarPregunta();
+    }
+
+    function configurarPreguntas() {
+      const total = nivelActual === 'facil' ? 10 : nivelActual === 'intermedio' ? 15 : 20;
+      preguntas = Array.from({ length: total }, () => generarOperacion());
+    }
+
+    function generarOperacion() {
+      const ops = ['+', '-', '*', '/'];
+      const op = ops[Math.floor(Math.random() * ops.length)];
+      let a = Math.floor(Math.random() * 50) + 1;
+      let b = Math.floor(Math.random() * 49) + 1;
+      if (op === '/') {
+        a = a * b;
+      }
+      const expresion = `${a} ${op} ${b}`;
+      const resultado = eval(expresion);
+      return { expresion, resultado: Math.round(resultado * 100) / 100 };
+    }
+
+    function actualizarTimer() {
+      const elapsed = Date.now() - inicioTiempo;
+      const seconds = Math.floor(elapsed / 1000) % 60;
+      const minutes = Math.floor(elapsed / 60000);
+      const mm = minutes.toString().padStart(2, "0");
+      const ss = seconds.toString().padStart(2, "0");
+      document.getElementById("timer").textContent = mm + ":" + ss;
+    }
+
+    function mostrarPregunta() {
+      const total = preguntas.length;
+      document.getElementById("preguntaInfo").textContent = `Pregunta ${indexPregunta + 1}/${total}`;
+      const actual = preguntas[indexPregunta];
+      document.getElementById('textoOperacion').textContent = `¿Resultado de: ${actual.expresion}?`;
+      document.getElementById('personaje').src = personajes[Math.floor(Math.random() * personajes.length)];
+      const opcionesSet = new Set([actual.resultado]);
+      while (opcionesSet.size < 5) {
+        const errorTipo = Math.random();
+        let distractor;
+        if (errorTipo < 0.33) {
+          distractor = actual.resultado + Math.floor(Math.random() * 5 + 1);
+        } else if (errorTipo < 0.66) {
+          distractor = actual.resultado - Math.floor(Math.random() * 5 + 1);
+        } else {
+          distractor = actual.resultado + Math.random() * 4 - 2;
+        }
+        distractor = Math.round(distractor * 100) / 100;
+        if (!opcionesSet.has(distractor)) opcionesSet.add(distractor);
+      }
+      const mezcladas = [...opcionesSet].sort(() => Math.random() - 0.5);
+      const contenedor = document.getElementById('opciones');
+      contenedor.innerHTML = '';
+      mezcladas.forEach(op => {
+        const btn = document.createElement('button');
+        btn.textContent = op;
+        btn.onclick = () => {
+          respuestas.push({
+            pregunta: actual.expresion,
+            respuesta: op,
+            correcta: actual.resultado
+          });
+          indexPregunta++;
+          if (indexPregunta < preguntas.length) {
+            mostrarPregunta();
+          } else {
+            mostrarResultado();
+          }
+        };
+        contenedor.appendChild(btn);
+      });
+    }
+
+    function mostrarResultado() {
+      clearInterval(timerInterval);
+      mostrarPantalla('pantallaResultado');
+      const detalle = document.getElementById('detalleResultado');
+      detalle.innerHTML = '';
+      const nombre = localStorage.getItem("nombreJugador") || "Jugador";
+      document.getElementById('tituloResultado').textContent = `Estos son tus resultados, ${nombre}`;
+      respuestas.forEach(r => {
+        const correcto = r.respuesta == r.correcta;
+        const div = document.createElement('div');
+        div.className = `resultado-item ${correcto ? 'correcto' : 'incorrecto'}`;
+        div.textContent = `${correcto ? '✅' : '❌'} ${r.pregunta} = Tú: ${r.respuesta} | Correcta: ${r.correcta}`;
+        detalle.appendChild(div);
+      });
+    }
+
+    function volverAlInicioJuego() {
+      document.getElementById('juego').classList.remove('mostrando');
+      mostrarPantalla('pantallaInicio');
+    }
+
+    function volverALaPrincipal() {
+      window.location.href = "../index.html";
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+
+    function abrirSettings() {
+      document.getElementById("settingsModal").style.display = 'flex';
+    }
+
+    function cerrarSettings() {
+      document.getElementById("settingsModal").style.display = 'none';
+    }
+
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage:'es',layout:google.translate.TranslateElement.InlineLayout.SIMPLE},'google_translate_element');
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
