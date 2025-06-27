@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego Educativo por Niveles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+body {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 100px;
+  font-family: 'Press Start 2P', cursive;
+  color: #fff;
+  background: linear-gradient(-45deg, #6a0dad, #0f52ba, #b22222, #6a0dad);
+  background-size: 400% 400%;
+  animation: gradientCycle 15s ease infinite;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+@keyframes gradientCycle {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+body::before {
+  content: "";
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: repeating-radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 2px);
+  animation: moveGrid 60s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+@keyframes moveGrid {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1.5); }
+}
+.pantalla {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 40px 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(0, 255, 180, 0.4), 0 0 50px rgba(0, 255, 180, 0.2) inset;
+  animation: fadeIn 1.2s ease-out, glowPulse 5s infinite ease-in-out;
+  max-width: 700px;
+  width: 90%;
+  z-index: 2;
+  text-align: center;
+  position: relative;
+}
+.oculto {
+  display: none !important;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 20px rgba(0, 255, 180, 0.3), 0 0 40px rgba(0, 255, 180, 0.2) inset;
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(0, 255, 220, 0.4), 0 0 60px rgba(0, 255, 220, 0.3) inset;
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 255, 180, 0.3), 0 0 40px rgba(0, 255, 180, 0.2) inset;
+  }
+}
+h1, h2, p {
+  text-align: center;
+  color: #00ffc3;
+  text-shadow: 2px 2px 0 #004d4d;
+  margin-bottom: 20px;
+}
+#descripcion {
+  font-size: 0.7em;
+  color: #a0ffe0;
+  margin-bottom: 20px;
+}
+.niveles {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+button {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8em;
+  background-color: #00ffc3;
+  color: #1e1e2f;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 255, 180, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  animation: pulseButton 2s infinite;
+}
+button:hover {
+  background-color: #00c2a8;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0, 255, 180, 0.9);
+}
+@keyframes pulseButton {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 180, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(0, 255, 220, 0.7); }
+}
+#palabra-actual {
+  font-size: 1em;
+  color: #ffff00;
+  animation: glowText 2s infinite alternate;
+  margin-bottom: 20px;
+}
+@keyframes glowText {
+  0% { text-shadow: 0 0 5px #ff0, 0 0 10px #ff0; }
+  100% { text-shadow: 0 0 15px #ffff99, 0 0 30px #ff0; }
+}
+.image-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+.image-options img {
+  width: 100px;
+  height: 100px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px rgba(0,255,180,0.2);
+}
+.image-options img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(0,255,180,0.6);
+}
+#detalle-resultados {
+  width: 100%;
+  margin-top: 20px;
+  font-size: 0.7em;
+  color: #00ffc3;
+  background: rgba(0, 255, 180, 0.07);
+  border: 1px solid rgba(0, 255, 180, 0.3);
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px #00ffc3;
+  padding: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+#detalle-resultados div {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 255, 180, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+#detalle-resultados .correcto {
+  color: #00ffab;
+  font-weight: bold;
+}
+#detalle-resultados .incorrecto {
+  color: #ff4c4c;
+  font-weight: bold;
+}
+#mascota {
+  width: 150px;
+  margin: 0 auto 15px;
+  display: block;
+  animation: flotar 2s infinite ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+}
+@keyframes flotar {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+#panelSuperior {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #00ffc3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+#panelSuperior #timer {
+  text-align: left;
+  font-size: 0.9em;
+}
+#panelSuperior #motivacion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#panelSuperior #motivacion span {
+  font-size: 1.1em;
+}
+#panelSuperior #motivacion img {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+#panelSuperior > div {
+  display: flex;
+  align-items: center;
+}
+#panelSuperior button {
+  font-size: 0.8em;
+  padding: 4px 8px;
+  margin-left: 5px;
+}
+#juego .pantalla {
+  padding-top: 60px;
+}
+#settingsModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+#settingsContent {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+#settingsContent button {
+  margin-top: 15px;
+}
+#tutorial video {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,255,180,0.3);
+  margin-bottom: 20px;
+}
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  color: #00ffc3;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  font-size: 0.8em;
+  z-index: 10;
+  flex-wrap: wrap;
+  animation: footerGlow 3s ease-in-out infinite alternate;
+}
+@keyframes footerGlow {
+  from { box-shadow: 0 -2px 10px rgba(0,255,180,0.3); }
+  to { box-shadow: 0 -2px 20px rgba(0,255,220,0.6); }
+}
+footer .izquierda {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+footer .izquierda span::before {
+  content: "• ";
+}
+footer .derecha img {
+  height: 60px;
+  animation: logoPulse 4s infinite ease-in-out;
+}
+@keyframes logoPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@media (max-width: 600px) {
+  .pantalla {
+    padding: 30px 15px;
+    width: 95%;
+  }
+  #panelSuperior {
+    padding: 5px;
+  }
+  #panelSuperior #timer {
+    font-size: 0.8em;
+  }
+  #panelSuperior #motivacion span {
+    font-size: 1em;
+  }
+  #panelSuperior #motivacion img {
+    width: 20px;
+    height: 20px;
+  }
+  button {
+    padding: 10px 15px;
+    font-size: 0.7em;
+  }
+  #mascota {
+    width: 120px;
+    margin-bottom: 10px;
+  }
+  .image-options img {
+    width: 80px;
+    height: 80px;
+  }
+  #detalle-resultados {
+    font-size: 0.6em;
+    max-height: 200px;
+  }
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 0.6em;
+    padding: 10px;
+  }
+  footer .derecha img {
+    height: 50px;
+  }
+  footer .derecha {
+    margin-top: 10px;
+    align-self: flex-end;
+  }
+}
+  </style>
+</head>
+<body>
+  <div id="bienvenida" class="pantalla">
+    <h1 id="saludoInicial">Bienvenido</h1>
+    <img id="logoOrg" src="recursos/portada.png" alt="Logo Organización" style="width:150px; margin-bottom:10px;">
+    <p id="descripcion">Aprende de forma divertida: di la palabra indicada y selecciona la imagen correcta.</p>
+    <p>Selecciona tu nivel:</p>
+    <div class="niveles">
+      <button onclick="prepararNivel('facil')">Fácil</button>
+      <button onclick="prepararNivel('medio')">Medio</button>
+      <button onclick="prepararNivel('dificil')">Difícil</button>
+      <button onclick="volver()">Volver a la Principal</button>
+    </div>
+  </div>
+  <div id="tutorial" class="pantalla oculto">
+    <h2>Video Tutorial</h2>
+    <video id="videoTutorial" autoplay muted loop playsinline>
+        <source src="recursos/tutorial.mp4" type="video/mp4">
+    </video>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+      <button onclick="volverABienvenida()">Volver</button>
+      <button onclick="iniciarJuegoDesdeTutorial()">Iniciar Juego</button>
+    </div>
+  </div>
+  <div id="juego" class="oculto">
+    <div id="panelSuperior">
+      <span id="timer">00:00</span>
+      <a href="https://www.colegioasuncion.edu.pe/"><div id="motivacion"><span id="textoMotivacion">Tú puedes!</span><img src="recursos/colegio.png" alt="Mascota"></div></a>
+      <div>
+        <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
+      </div>
+    </div>
+    <div id="fase-palabra" class="pantalla">
+      <img id="mascota" src="" alt="Mascota animada">
+      <h2>Di esta palabra</h2>
+      <p id="palabra-actual"></p>
+      <button onclick="reconocerPalabra()">🎤 Decir palabra</button>
+    </div>
+    <div id="fase-imagenes" class="pantalla oculto">
+      <h2>Selecciona la imagen correcta</h2>
+      <div class="image-options" id="opciones-imagenes"></div>
+    </div>
+  </div>
+  <div id="resultados" class="pantalla oculto">
+    <h2 id="tituloResultados">Resultados</h2>
+    <div id="detalle-resultados"></div>
+    <button onclick="reiniciarJuego()">Volver al Inicio</button>
+  </div>
+  <div id="settingsModal" class="oculto">
+    <div id="settingsContent">
+      <h2>Ajustes</h2>
+      <div id="google_translate_element"></div>
+      <button onclick="cerrarSettings()">Cerrar</button>
+    </div>
+  </div>
+  <footer>
+    <div class="izquierda">
+      <span>Juego hecho por:</span>
+      <span>Lucia Vilca</span>
+      <span>Camila Chavez</span>
+      <span>Jimena Magaño</span>
+      <span>Yuliana Rodriguez</span>
+    </div>
+    <a href="https://www.colegioasuncion.edu.pe/"><div class="derecha"><img src="recursos/colegio.png" alt="Logo Empresa"></div></a>
+  </footer>
+  <script>
+    const niveles = {
+      facil: [
+        { palabra: "MANZANA", imagenes: ["MANZANA", "GATO", "FLOR", "PERRO"], correcta: 0 },
+        { palabra: "PERRO", imagenes: ["PELOTA", "PERRO", "SOL", "CAMION"], correcta: 1 },
+        { palabra: "SOL", imagenes: ["SOL", "GATO", "TELEFONO", "RATON"], correcta: 0 },
+        { palabra: "GATO", imagenes: ["FLOR", "GATO", "MESA", "PEZ"], correcta: 1 },
+        { palabra: "FLOR", imagenes: ["FLOR", "CARRO", "PERRO", "PELOTA"], correcta: 0 },
+        { palabra: "PELOTA", imagenes: ["PERRO", "PELOTA", "LAPIZ", "MANZANA"], correcta: 1 },
+        { palabra: "ARBOL", imagenes: ["ARBOL", "TELEFONO", "GATO", "SOL"], correcta: 0 },
+        { palabra: "CASA", imagenes: ["LIBRO", "CAMION", "CASA", "RATON"], correcta: 2 },
+        { palabra: "LIBRO", imagenes: ["LIBRO", "SOL", "MANZANA", "MESA"], correcta: 0 },
+        { palabra: "CAMION", imagenes: ["PELOTA", "CAMION", "GATO", "FLOR"], correcta: 1 },
+        { palabra: "PEZ", imagenes: ["RATON", "PEZ", "PELOTA", "CASA"], correcta: 1 },
+        { palabra: "ESTRELLA", imagenes: ["PELOTA", "ESTRELLA", "PERRO", "LAPIZ"], correcta: 1 },
+        { palabra: "RATON", imagenes: ["MANZANA", "RATON", "FLOR", "LIBRO"], correcta: 1 },
+        { palabra: "ZAPATO", imagenes: ["ZAPATO", "CAMION", "PERRO", "MESA"], correcta: 0 },
+        { palabra: "MESA", imagenes: ["MESA", "PELOTA", "GATO", "SOL"], correcta: 0 },
+        { palabra: "LAPIZ", imagenes: ["MANZANA", "LAPIZ", "FLOR", "PERRO"], correcta: 1 },
+        { palabra: "RELOJ", imagenes: ["RELOJ", "ARBOL", "CAMION", "GATO"], correcta: 0 },
+        { palabra: "SILLA", imagenes: ["SILLA", "GATO", "SOL", "PERRO"], correcta: 0 },
+        { palabra: "TELEFONO", imagenes: ["PELOTA", "TELEFONO", "MESA", "PEZ"], correcta: 1 },
+        { palabra: "CARRO", imagenes: ["CARRO", "RATON", "FLOR", "MANZANA"], correcta: 0 },
+      ],
+      medio: [
+        { palabra: "COMPUTADORA", imagenes: ["TECLADO", "COMPUTADORA", "MOUSE", "PANTALLA"], correcta: 1 },
+        { palabra: "ELEFANTE", imagenes: ["ELEFANTE", "LEON", "TIGRE", "JIRAFA"], correcta: 0 },
+        { palabra: "TELEFONO", imagenes: ["RELOJ", "TELEFONO", "LAPIZ", "SILLA"], correcta: 1 },
+        { palabra: "RELOJ", imagenes: ["SILLA", "RELOJ", "MESA", "PUERTA"], correcta: 1 },
+        { palabra: "BICICLETA", imagenes: ["MOTO", "BICICLETA", "CARRO", "BUS"], correcta: 1 },
+        { palabra: "AVION", imagenes: ["BARCO", "CARRO", "AVION", "TREN"], correcta: 2 },
+        { palabra: "LINTERNA", imagenes: ["LINTERNA", "MOUSE", "BOMBILLA", "FOCO"], correcta: 0 },
+        { palabra: "ZAPATO", imagenes: ["ZAPATO", "CAMISA", "PANTALON", "GORRA"], correcta: 0 },
+        { palabra: "BIBLIOTECA", imagenes: ["BIBLIOTECA", "ESCOLAR", "LIBRERIA", "OFICINA"], correcta: 0 },
+        { palabra: "CAFETERA", imagenes: ["CAFETERA", "TETERA", "VASO", "PLATO"], correcta: 0 },
+        { palabra: "ESCUELA", imagenes: ["ESCUELA", "BIBLIOTECA", "JARDIN", "LINTERNA"], correcta: 0 },
+        { palabra: "CANGURO", imagenes: ["CANGURO", "ZORRO", "LOBO", "TIGRE"], correcta: 0 },
+        { palabra: "CAMARA", imagenes: ["CAMARA", "TELEFONO", "RELOJ", "LINTERNA"], correcta: 0 },
+        { palabra: "PERIODO", imagenes: ["PERIODO", "PRACTICA", "PROCESO", "RELOJ"], correcta: 0 },
+        { palabra: "GAFAS", imagenes: ["LENTES", "GAFAS", "OJOS", "ESPEJO"], correcta: 1 },
+        { palabra: "BARCO", imagenes: ["BARCO", "CARRO", "PUERTA", "SILLA"], correcta: 0 },
+        { palabra: "PISCINA", imagenes: ["JARDIN", "PISCINA", "PLAYA", "RIO"], correcta: 1 },
+        { palabra: "SANDWICH", imagenes: ["SANDWICH", "HAMBURGUESA", "PIZZA", "ENSALADA"], correcta: 0 },
+        { palabra: "ZAPATILLA", imagenes: ["ZAPATILLA", "ZAPATO", "CHANCLA", "BOTA"], correcta: 0 },
+        { palabra: "LINTERNA", imagenes: ["FOCO", "BOMBILLA", "LINTERNA", "VELA"], correcta: 2 },
+      ],
+      dificil: [
+        { palabra: "MICROSCOPIO", imagenes: ["TELESCOPIO", "MICROSCOPIO", "CAMARA", "LUPA"], correcta: 1 },
+        { palabra: "TERMODINAMICA", imagenes: ["FISICA", "QUIMICA", "TERMODINAMICA", "BIOLOGIA"], correcta: 2 },
+        { palabra: "PARALELOGRAMO", imagenes: ["RECTANGULO", "TRIANGULO", "PARALELOGRAMO", "CUADRADO"], correcta: 2 },
+        { palabra: "HIPOTENUSA", imagenes: ["CUADRADO", "HIPOTENUSA", "TRIANGULO", "FISICA"], correcta: 1 },
+        { palabra: "INTEGRAL", imagenes: ["SANDWICH", "INTEGRAL", "PIZZA", "ENSALADA"], correcta: 1 },
+        { palabra: "FOTOSSINTESIS", imagenes: ["FOTOSSINTESIS", "RESPIRACION", "FERMENTACION", "ZAPATO"], correcta: 0 },
+        { palabra: "ELECTROMAGNETISMO", imagenes: ["ELECTROMAGNETISMO", "GRAVITACION", "NUCLEAR", "QUIMICA"], correcta: 0 },
+        { palabra: "METAMORFOSIS", imagenes: ["METAMORFOSIS", "EVOLUCION", "TIGRE", "CAMARA"], correcta: 0 },
+        { palabra: "HIPERTENSION", imagenes: ["HIPERTENSION", "HIPOTENSION", "DIABETES", "ANEMIA"], correcta: 0 },
+        { palabra: "RESPIRACION", imagenes: ["FOTOSSINTESIS", "RESPIRACION", "FERMENTACION", "ENSALADA"], correcta: 1 },
+        { palabra: "PARADIGMA", imagenes: ["TEORIA", "PARADIGMA", "PIZZA", "HYPOTESIS"], correcta: 1 },
+        { palabra: "FISICOQUIMICA", imagenes: ["BIOLOGIA", "FISICOQUIMICA", "QUIMICA", "FISICA"], correcta: 1 },
+        { palabra: "CRISTALOGRAFIA", imagenes: ["GEOLOGIA", "CRISTALOGRAFIA", "MINERALOGIA", "PETROLOGIA"], correcta: 1 },
+        { palabra: "TELESCOPIO", imagenes: ["TELESCOPIO", "CAMARA", "QUIMICA", "MICROSCOPIO"], correcta: 0 },
+        { palabra: "INMUNODEFICIENCIA", imagenes: ["INMUNODEFICIENCIA", "INMUNIDAD", "VACUNA", "ANTICUERPO"], correcta: 0 },
+        { palabra: "TELEPRESENCIA", imagenes: ["TELEPRESENCIA", "VIDEOLLAMADA", "CONFERENCIA", "WEBINAR"], correcta: 0 },
+        { palabra: "GRAVITACION", imagenes: ["NUCLEAR", "GRAVITACION", "QUIMICA", "HYPOTESIS"], correcta: 1 },
+        { palabra: "MEDITERRANEO", imagenes: ["ATLANTICO", "PACIFICO", "MEDITERRANEO", "INDICO"], correcta: 2 },
+        { palabra: "NEUROCIENCIA", imagenes: ["NEUROCIENCIA", "PSICOLOGIA", "ANTROPOLOGIA", "SOCIOLOGIA"], correcta: 0 },
+        { palabra: "ASTROFISICA", imagenes: ["ASTRONOMIA", "ASTROFISICA", "COSMOLOGIA", "FISICA"], correcta: 1 }
+      ]
+    }
+    let nivelActual = "";
+    let preguntas = [];
+    let preguntaIndex = 0;
+    let nombreUsuario = "";
+    let inicioNivelTime = 0;
+    let timerInterval = null;
+    document.addEventListener('DOMContentLoaded',()=>{
+      const stored = localStorage.getItem('nombreJugador');
+      if(stored) nombreUsuario = stored;
+      document.getElementById("saludoInicial").textContent = nombreUsuario?("Bienvenido "+nombreUsuario):"Bienvenido";
+    });
+    function prepararNivel(nivel) {
+      const stored = localStorage.getItem('nombreJugador');
+      if(!stored) return alert("No se encontró nombreJugador en localStorage");
+      nombreUsuario = stored;
+      nivelActual = nivel;
+      document.getElementById("saludoInicial").textContent = "Bienvenido "+nombreUsuario;
+      document.getElementById("bienvenida").classList.add("oculto");
+      document.getElementById("tutorial").classList.remove("oculto");
+    }
+    function volverABienvenida() {
+      document.getElementById("tutorial").classList.add("oculto");
+      document.getElementById("bienvenida").classList.remove("oculto");
+    }
+    function iniciarJuegoDesdeTutorial() {
+      preguntas = niveles[nivelActual];
+      preguntaIndex = 0;
+      localStorage.setItem('userAnswers', JSON.stringify([]));
+      document.getElementById("tutorial").classList.add("oculto");
+      document.getElementById("juego").classList.remove("oculto");
+      inicioNivelTime = Date.now();
+      actualizarMotivacion();
+      iniciarTimer();
+      mostrarPregunta();
+    }
+    function actualizarMotivacion() {
+      document.getElementById("textoMotivacion").textContent = "Tú puedes, "+nombreUsuario;
+    }
+    function iniciarTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(()=>{
+        const elapsed=Date.now()-inicioNivelTime;
+        const seconds=Math.floor(elapsed/1000)%60;
+        const minutes=Math.floor(elapsed/60000);
+        const mm=minutes.toString().padStart(2,"0");
+        const ss=seconds.toString().padStart(2,"0");
+        document.getElementById("timer").textContent=mm+":"+ss;
+      },500);
+    }
+    function detenerTimer() {
+      clearInterval(timerInterval);
+    }
+    function toggleFullscreen() {
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+    function abrirSettings() {
+      document.getElementById("settingsModal").classList.remove("oculto");
+    }
+    function cerrarSettings() {
+      document.getElementById("settingsModal").classList.add("oculto");
+    }
+    function mostrarPregunta() {
+      const p=preguntas[preguntaIndex];
+      document.getElementById("palabra-actual").textContent=p.palabra.toUpperCase();
+      document.getElementById("fase-palabra").classList.remove("oculto");
+      document.getElementById("fase-imagenes").classList.add("oculto");
+      mostrarMascotaAleatoria();
+    }
+    function normalizar(texto) {
+      return texto.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    }
+    function reconocerPalabra() {
+      const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!SpeechRecognition) return alert("Tu navegador no soporta reconocimiento de voz.");
+      const recognition=new SpeechRecognition();
+      recognition.lang='es-ES';
+      recognition.interimResults=false;
+      recognition.start();
+      recognition.onresult=(event)=>{
+        const dicho=event.results[0][0].transcript.trim();
+        const esperado=preguntas[preguntaIndex].palabra;
+        const esCorrecto=normalizar(dicho)===normalizar(esperado);
+        const respuestas=JSON.parse(localStorage.getItem('userAnswers'))||[];
+        if(!respuestas[preguntaIndex]) respuestas[preguntaIndex]={};
+        respuestas[preguntaIndex].voz={dicho,correcto:esCorrecto};
+        localStorage.setItem('userAnswers',JSON.stringify(respuestas));
+        document.getElementById("fase-palabra").classList.add("oculto");
+        mostrarImagenes();
+      };
+      recognition.onerror=(e)=>alert("Error: "+e.error);
+    }
+    function mostrarImagenes() {
+      const p=preguntas[preguntaIndex];
+      const contenedor=document.getElementById("opciones-imagenes");
+      contenedor.innerHTML="";
+      p.imagenes.forEach((img,i)=>{
+        const imgEl=document.createElement("img");
+        imgEl.src=`recursos/${img}.png`;
+        imgEl.alt=img;
+        imgEl.onclick=()=>seleccionarImagen(i);
+        contenedor.appendChild(imgEl);
+      });
+      document.getElementById("fase-imagenes").classList.remove("oculto");
+    }
+    function seleccionarImagen(indexSeleccionado) {
+      const correcta=preguntas[preguntaIndex].correcta;
+      const respuestas=JSON.parse(localStorage.getItem('userAnswers'))||[];
+      if(!respuestas[preguntaIndex]) respuestas[preguntaIndex]={};
+      respuestas[preguntaIndex].imagen={
+        seleccionada:preguntas[preguntaIndex].imagenes[indexSeleccionado],
+        correcta:indexSeleccionado===correcta
+      };
+      localStorage.setItem('userAnswers',JSON.stringify(respuestas));
+      preguntaIndex++;
+      if(preguntaIndex<preguntas.length){
+        document.getElementById("fase-imagenes").classList.add("oculto");
+        mostrarPregunta();
+      } else {
+        mostrarResultados();
+      }
+    }
+    function mostrarResultados() {
+      detenerTimer();
+      document.getElementById("juego").classList.add("oculto");
+      const resultadosDiv=document.getElementById("resultados");
+      resultadosDiv.classList.remove("oculto");
+      document.getElementById("tituloResultados").textContent="Felicidades "+nombreUsuario+" por acabar";
+      const respuestas=JSON.parse(localStorage.getItem('userAnswers'))||[];
+      const detalle=document.getElementById("detalle-resultados");
+      detalle.innerHTML="";
+      respuestas.forEach((r,i)=>{
+        const item=document.createElement("div");
+        item.innerHTML=
+          `<div><strong>Pregunta ${i+1}:</strong></div>
+          <div>🔊 Dijiste: <em>${r.voz?.dicho||"-"}</em> (${r.voz?.correcto?"✅":"❌"})</div>
+          <div>🖼️ Elegiste: <em>${r.imagen?.seleccionada||"-"}</em> (${r.imagen?.correcta?"✅":"❌"})</div>`;
+        detalle.appendChild(item);
+      });
+    }
+    function reiniciarJuego() {
+      document.getElementById("resultados").classList.add("oculto");
+      document.getElementById("bienvenida").classList.remove("oculto");
+    }
+    function mostrarMascotaAleatoria() {
+      const totalMascotas=10;
+      const numeroAleatorio=Math.floor(Math.random()*totalMascotas)+1;
+      const mascotaImg=document.getElementById("mascota");
+      mascotaImg.src=`recursos/mascota${numeroAleatorio}.png`;
+    }
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage:'es',layout:google.translate.TranslateElement.InlineLayout.SIMPLE},'google_translate_element');
+    }
+    function volver() {
+      window.location.href = "../index.html";
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
